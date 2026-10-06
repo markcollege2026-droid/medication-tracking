@@ -23,24 +23,17 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # Sweeps loose files and uses a broad type definition injection to force compiling
+    # Sweeps loose files and handles only the basic manifest pathing safely in the cloud
     - name: Automatically Structure Project Files
       run: |
         mkdir -p app/src/main/java/com/campmeds/app
         find . -maxdepth 1 -name "*.kt" -exec mv {} app/src/main/java/com/campmeds/app/ \;
         
-        # Manifest mapping patch
         if [ -f app/src/main/AndroidManifest.xml ]; then
           sed -i 's|@mipmap/ic_launcher|@drawable/ic_launcher|g' app/src/main/AndroidManifest.xml
         fi
         
-        # DEFINITIVE FIX: Replaces the specific file type definition globally within this file
-        TARGET_FILE="app/src/main/java/com/campmeds/app/XlsxExporter.kt"
-        if [ -f "$TARGET_FILE" ]; then
-          sed -i 's/\bCellStyle\b/org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
-        fi
-        
-        echo "Project folder structures and global type replacements complete!"
+        echo "Project files structured cleanly!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
