@@ -86,7 +86,8 @@ class XlsxExporter {
         val font = workbook.createFont().apply { bold = true }
         return workbook.createCellStyle().apply {
             setFont(font)
-            fillForegroundColor = IndexedColors.GREY_25_PERCENT.index
+            fillForegroundColor = IndexedColors.GREY_25_PERCENT.getIndex()
+
             fillPattern = org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND
         }
     }
