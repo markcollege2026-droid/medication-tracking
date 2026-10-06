@@ -23,25 +23,27 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # Sweeps loose files, updates manifest paths, AND patches the Excel export code bug!
+    # Sweeps loose code files AND completely casts CellStyle to XSSFCellStyle
     - name: Automatically Structure Project Files
       run: |
         mkdir -p app/src/main/java/com/campmeds/app
         find . -maxdepth 1 -name "*.kt" -exec mv {} app/src/main/java/com/campmeds/app/ \;
         
-        # Safe automated manifest patching
+        # Manifest mapping patch
         if [ -f app/src/main/AndroidManifest.xml ]; then
           sed -i 's|@mipmap/ic_launcher|@drawable/ic_launcher|g' app/src/main/AndroidManifest.xml
         fi
         
-        # Safe automated Excel exporter code patching
+        # Broad-search Excel exporter patching
         TARGET_FILE="app/src/main/java/com/campmeds/app/XlsxExporter.kt"
         if [ -f "$TARGET_FILE" ]; then
-          sed -i 's/as CellStyle/as org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
-          sed -i 's/: CellStyle =/: org.apache.poi.xssf.usermodel.XSSFCellStyle =/g' "$TARGET_FILE"
+          # Forces any cell styling instantiation to explicitly resolve as XSSFCellStyle
+          sed -i 's/createCellStyle()/createCellStyle() as org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
+          sed -i 's/: CellStyle/: org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
+          sed -i 's/val cellStyle/val cellStyle: org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
         fi
         
-        echo "Root folder, manifest, and code code fixes complete!"
+        echo "Root folder, manifest, and comprehensive code fixes complete!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
