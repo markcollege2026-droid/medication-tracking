@@ -23,35 +23,28 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # MAGIC STEP: Automatically builds the folder tree and moves loose files in the cloud!
+    # Sweeps loose files straight from the front page into the correct folder tree
     - name: Automatically Structure Kotlin Files
       run: |
-        cd medication-tracking
-        mkdir -p app/src/main/java/com/campmeds/app/ui
-        
-        # Move any loose .kt files from the root into the correct folder layout
+        mkdir -p app/src/main/java/com/campmeds/app
         find . -maxdepth 1 -name "*.kt" -exec mv {} app/src/main/java/com/campmeds/app/ \;
-        
-        echo "Cloud folder structuring complete!"
+        echo "Root folder structuring complete!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
-        cd medication-tracking
         if [ ! -f gradlew ]; then
           echo "Generating Gradle wrapper..."
           gradle wrapper --gradle-version 8.7
         fi
 
     - name: Grant Execute Permission for Gradle
-      run: chmod +x medication-tracking/gradlew
+      run: chmod +x gradlew
 
     - name: Build App APK
-      run: |
-        cd medication-tracking
-        ./gradlew :app:assembleDebug
+      run: ./gradlew :app:assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: my-app-apk
-        path: medication-tracking/app/build/outputs/apk/debug/app-debug.apk
+        path: app/build/outputs/apk/debug/app-debug.apk
