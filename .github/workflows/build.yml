@@ -23,7 +23,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # Sweeps loose files and uses a definitive keyword replacement for Line 48
+    # Sweeps loose files and uses a broad type definition injection to force compiling
     - name: Automatically Structure Project Files
       run: |
         mkdir -p app/src/main/java/com/campmeds/app
@@ -34,13 +34,13 @@ jobs:
           sed -i 's|@mipmap/ic_launcher|@drawable/ic_launcher|g' app/src/main/AndroidManifest.xml
         fi
         
-        # DEFINITIVE LINE 48 FIX: Finds the exact text "as CellStyle" and fixes it
+        # DEFINITIVE FIX: Replaces the specific file type definition globally within this file
         TARGET_FILE="app/src/main/java/com/campmeds/app/XlsxExporter.kt"
         if [ -f "$TARGET_FILE" ]; then
-          sed -i 's/as CellStyle/as org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
+          sed -i 's/\bCellStyle\b/org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
         fi
         
-        echo "Project files structured and line 48 explicitly casted!"
+        echo "Project folder structures and global type replacements complete!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
