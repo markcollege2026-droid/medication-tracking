@@ -82,12 +82,11 @@ class XlsxExporter {
         }
     }
 
-    private fun headerStyle(workbook: XSSFWorkbook): CellStyle {
+        private fun headerStyle(workbook: XSSFWorkbook): org.apache.poi.xssf.usermodel.XSSFCellStyle {
         val font = workbook.createFont().apply { bold = true }
-        return workbook.createCellStyle().apply {
+        return (workbook.createCellStyle() as org.apache.poi.xssf.usermodel.XSSFCellStyle).apply {
             setFont(font)
             fillForegroundColor = IndexedColors.GREY_25_PERCENT.getIndex()
-
             fillPattern = org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND
         }
     }
