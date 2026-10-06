@@ -23,7 +23,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # Sweeps loose files and fixes the manifest without touching complex style references
+    # Sweeps loose files and uses a definitive keyword replacement for Line 48
     - name: Automatically Structure Project Files
       run: |
         mkdir -p app/src/main/java/com/campmeds/app
@@ -34,13 +34,13 @@ jobs:
           sed -i 's|@mipmap/ic_launcher|@drawable/ic_launcher|g' app/src/main/AndroidManifest.xml
         fi
         
-        # Safe targeted replacement for line 48 that leaves line 90 completely untouched
+        # DEFINITIVE LINE 48 FIX: Finds the exact text "as CellStyle" and fixes it
         TARGET_FILE="app/src/main/java/com/campmeds/app/XlsxExporter.kt"
         if [ -f "$TARGET_FILE" ]; then
-          sed -i 's/val cellStyle = workbook.createCellStyle()/val cellStyle = workbook.createCellStyle() as org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
+          sed -i 's/as CellStyle/as org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
         fi
         
-        echo "Root folder, manifest, and targeted line 48 fix complete!"
+        echo "Project files structured and line 48 explicitly casted!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
