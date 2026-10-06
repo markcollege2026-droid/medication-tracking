@@ -23,17 +23,25 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # Sweeps loose files and maps the manifest assets safely in the cloud
+    # Sweeps files, corrects manifest routing, and applies the targeted line 48 type cast
     - name: Automatically Structure Project Files
       run: |
         mkdir -p app/src/main/java/com/campmeds/app
         find . -maxdepth 1 -name "*.kt" -exec mv {} app/src/main/java/com/campmeds/app/ \;
         
+        # Manifest mapping patch
         if [ -f app/src/main/AndroidManifest.xml ]; then
           sed -i 's|@mipmap/ic_launcher|@drawable/ic_launcher|g' app/src/main/AndroidManifest.xml
         fi
         
-        echo "Root folder and manifest structuring complete!"
+        # Explicitly casts the CellStyle to XSSFCellStyle for line 48 on the 4.1.2 library
+        TARGET_FILE="app/src/main/java/com/campmeds/app/XlsxExporter.kt"
+        if [ -f "$TARGET_FILE" ]; then
+          sed -i 's/createCellStyle()/createCellStyle() as org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
+          sed -i 's/: CellStyle/: org.apache.poi.xssf.usermodel.XSSFCellStyle/g' "$TARGET_FILE"
+        fi
+        
+        echo "Root folder, manifest, and explicit code fixes complete!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
