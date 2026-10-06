@@ -23,12 +23,18 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # Sweeps loose files straight from the front page into the correct folder tree
-    - name: Automatically Structure Kotlin Files
+    # Sweeps loose code files AND forces the manifest to look in the drawable folder
+    - name: Automatically Structure Project Files
       run: |
         mkdir -p app/src/main/java/com/campmeds/app
         find . -maxdepth 1 -name "*.kt" -exec mv {} app/src/main/java/com/campmeds/app/ \;
-        echo "Root folder structuring complete!"
+        
+        # This line safely updates the manifest text automatically from mipmap to drawable
+        if [ -f app/src/main/AndroidManifest.xml ]; then
+          sed -i 's|@mipmap/ic_launcher|@drawable/ic_launcher|g' app/src/main/AndroidManifest.xml
+        fi
+        
+        echo "Root folder and manifest structuring complete!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
