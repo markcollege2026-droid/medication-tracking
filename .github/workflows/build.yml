@@ -23,10 +23,21 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
-    # Sweeps loose files and applies a strictly targeted line-specific text modification
+    # Sweeps application files AND separates unit test files into their true directories
     - name: Automatically Structure Project Files
       run: |
-        mkdir -p app/src/main/java/com/campmeds/app
+        mkdir -p app/src/main/java/com/campmeds/app/export
+        mkdir -p app/src/test/java/com/campmeds/app
+        
+        # 1. Move your specific exporter file into the export subfolder
+        if [ -f XlsxExporter.kt ]; then
+          mv XlsxExporter.kt app/src/main/java/com/campmeds/app/export/
+        fi
+        
+        # 2. Move any test files into the dedicated test directory so they don't block the app build
+        find . -maxdepth 1 -name "*Test.kt" -exec mv {} app/src/test/java/com/campmeds/app/ \;
+        
+        # 3. Move all standard loose app code files into the core app path
         find . -maxdepth 1 -name "*.kt" -exec mv {} app/src/main/java/com/campmeds/app/ \;
         
         # Manifest mapping patch
@@ -34,13 +45,7 @@ jobs:
           sed -i 's|@mipmap/ic_launcher|@drawable/ic_launcher|g' app/src/main/AndroidManifest.xml
         fi
         
-        # PRECISE LINE 48 PATCH: Targets line 48 exactly and safely appends the type cast
-        TARGET_FILE="app/src/main/java/com/campmeds/app/XlsxExporter.kt"
-        if [ -f "$TARGET_FILE" ]; then
-          sed -i '48s/createCellStyle()/createCellStyle() as XSSFCellStyle/' "$TARGET_FILE"
-        fi
-        
-        echo "Project folders structured and line 48 casted precisely!"
+        echo "Project folder layout mapping and test separation complete!"
 
     - name: Install Gradle Wrapper (If Missing)
       run: |
